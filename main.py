@@ -1,10 +1,14 @@
 import discord
 import os
+import requests
+from PIL import Image
+from io import BytesIO
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('DISCORD_GUILD')
+WEATHER = os.getenv('WEATHERAPI-KEY')
 userlist = "subscribed.txt"
 
 intents = discord.Intents.default()
@@ -76,8 +80,8 @@ async def on_message(message):
             if member.name+"#"+member.discriminator in hold and member != message.author:
                 pinged += member.name + " "
                 numping += 1
-                await member.send("Hello " + member.name + "! Currently " + message.author.name + " is playing Valorant on "
-                                  " the server " + message.guild.name)
+                await member.send("Hello " + member.name + "! Currently " + message.author.name +
+                                  " is playing Valorant on" " the server " + message.guild.name)
 
         await message.channel.send("Pinged " + str(numping) + " friends: "+ pinged)
     elif message.content.startswith('!valbot help'):
@@ -85,8 +89,37 @@ async def on_message(message):
                                    "!valbot sub - Subscribes you to valbot alerts \n"""
                                    "!valbot unsub - Unsubscribes you to alerts \n"
                                    "!valbot currentsubs - Shows all members subscribed in the guild \n"
+                                   "!valbot weather <Name of City> "
+                                   "<Name of Region> - Shows current weather at that location \n"
                                    "!valbot alert <optional list of names> - Dms all members subscribed"
                                    " or only the ones that have been listed")
+    elif message.content.startswith('!valbot weather'):
+        req = message.content.split(" ", 2)
+        if len(req) < 3:
+            await message.channel.send("Please include the City, for example: type !valbot Toronto Ontario")
+        else:
+            reqs = message.content.split(" ", 2)[2]
+            response = requests.get("http://api.weatherapi.com/v1/current.json?key=" + WEATHER + "&q=" +
+                                reqs)
+            if (response.status_code) != 200:
+                print(response.status_code)
+                await message.channel.send("The city was not able to be found? Please refine your search")
+            else:
+                print(reqs)
+                weatherjson = response.json()
+                weather = weatherjson['current']
+                icon = discord.File(BytesIO(requests.get("https:" + weather['condition']['icon']).content))
+                embedicon = discord.Embed(title="Weather in " + weatherjson['location']['name'] +
+                                           ", " + weatherjson['location']['region'] + ", " +
+                                           weatherjson['location']['country'] + ":",
+                                          description= "Temperature of " + str(weather['temp_c']) + "C, feels like " +
+                                           str(weather['feelslike_c']) + "C with " + weather['condition']['text'])
+                embedicon.set_image(url="https:" + weather['condition']['icon'])
+                await message.channel.send("Report generated as of: " + weather['last_updated'] + " (UST)", tts = False,
+                                           embed=embedicon)
+
+
+
     else:
         await message.channel.send("Unknown command, " + message.content + "\n Type !valbot help"
                                                                            " for list of commands")
