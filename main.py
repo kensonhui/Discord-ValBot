@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 WEATHER = os.getenv('WEATHERAPI-KEY')
+PREFIX = "!v"
 userlist = "subscribed.txt"
 
 intents = discord.Intents.default()
@@ -23,12 +24,12 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    if message.author == client.user or not message.content.startswith('!valbot'):
+    if message.author == client.user or not message.content.startswith(PREFIX):
         return
 
-    if message.content.startswith('!valbot sub'):
+    if message.content.startswith(PREFIX + " sub"):
         await sub(message)
-    elif message.content.startswith('!valbot unsub'):
+    elif message.content.startswith(PREFIX + " unsub"):
         if (not checkinfile(str(message.author))):
             users = open(userlist, "r")
             hold = []
@@ -45,7 +46,7 @@ async def on_message(message):
             await message.channel.send("You've unsubscribed to ValBot Alerts!")
         else:
             await message.channel.send("You aren't subscribed to ValBot Alerts")
-    elif message.content.startswith('!valbot currentsubs'):
+    elif message.content.startswith(PREFIX + " currentsubs"):
         users = open(userlist, "r")
         string = "Current Subscribers to ValBot are:\n"
         for line in users:
@@ -54,7 +55,7 @@ async def on_message(message):
         users.close()
         await message.channel.send(string)
 
-    elif message.content.startswith('!valbot alert'):
+    elif message.content.startswith(PREFIX + " alert"):
         specified = message.content.split(" ")
 
         users = open(userlist, "r")
@@ -84,16 +85,16 @@ async def on_message(message):
                                   " is playing Valorant on" " the server " + message.guild.name)
 
         await message.channel.send("Pinged " + str(numping) + " friends: "+ pinged)
-    elif message.content.startswith('!valbot help'):
-        await message.channel.send("Current commands include: \n"
-                                   "!valbot sub - Subscribes you to valbot alerts \n"""
-                                   "!valbot unsub - Unsubscribes you to alerts \n"
-                                   "!valbot currentsubs - Shows all members subscribed in the guild \n"
-                                   "!valbot weather <Name of City> "
-                                   "<Name of Region> - Shows current weather at that location \n"
-                                   "!valbot alert <optional list of names> - Dms all members subscribed"
+    elif message.content.startswith(PREFIX + " help"):
+        await message.channel.send("Current commands include: \n" +
+                                   PREFIX + " sub - Subscribes you to valbot alerts \n" +
+                                   PREFIX + " unsub - Unsubscribes you to alerts \n" +
+                                   PREFIX + " currentsubs - Shows all members subscribed in the guild \n" +
+                                   PREFIX + " weather <Name of City> "
+                                   "<Name of Region> - Shows current weather at that location \n" +
+                                   PREFIX + " alert <optional list of names> - Dms all members subscribed"
                                    " or only the ones that have been listed")
-    elif message.content.startswith('!valbot weather'):
+    elif message.content.startswith(PREFIX + " weather"):
         req = message.content.split(" ", 2)
         if len(req) < 3:
             await message.channel.send("Please include the City, for example: type !valbot Toronto Ontario")
@@ -121,7 +122,7 @@ async def on_message(message):
 
 
     else:
-        await message.channel.send("Unknown command, " + message.content + "\n Type !valbot help"
+        await message.channel.send("Unknown command, " + message.content + "\n Type " + PREFIX + " help"
                                                                            " for list of commands")
 
 
@@ -132,7 +133,7 @@ async def sub(message):
         users.write(str(message.author) + "\n")
         users.close()
         await message.channel.send("You've been subscribed to ValBot Alerts,"
-                                   + " type !valbot unsub to unsubscribe")
+                                   + " type " + PREFIX + " unsub to unsubscribe")
     else:
         await message.channel.send("You're already subscribed to ValBot Alerts!")
 
