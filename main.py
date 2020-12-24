@@ -10,7 +10,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 WEATHER = os.getenv('WEATHERAPI-KEY')
 PREFIX = "!v"
-userlist = "subscribed.txt"
+userlist = "Discord-ValBot\subscribed.txt"
 
 intents = discord.Intents.default()
 intents.members = True
@@ -139,6 +139,7 @@ async def sub(message):
 
 
 def checkinfile(subber):
+    print(os.listdir())
     users = open(userlist, "r")
     for line in users:
 
