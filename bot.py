@@ -1,9 +1,7 @@
 import discord
 import os
 import requests
-from PIL import Image
 from io import BytesIO
-import json
 from dotenv import load_dotenv
 
 load_dotenv()
