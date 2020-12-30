@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.environ.get('DISCORD_TOKEN')
-WEATHER = os.environ.get('WEATHERAPI-KEY')
+WEATHER = os.environ.get('WEATHERAPI_KEY')
 PREFIX = "!v"
 userlist = "Discord-ValBot\subscribed.txt"
 
